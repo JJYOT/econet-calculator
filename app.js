@@ -33,7 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
             "jate": "Jäteilman lämpötila (°C)",
             "submit": "Laske Hyötysuhde",
             "res1": "Tuloilman hyötysuhde",
-            "res2": "Poistoilman hyötysuhde"
+            "res2": "Poistoilman hyötysuhde",
+            "opt4": "Valinn.",
+            "opt5": "Valinn.",
+            "liquid_flow": "Nestevirta",
+            "eg_pct": "EG pitoisuus",
+            "res_ilma_teho": "Ilmapuolen teho",
+            "res_neste_teho": "Nestepuolen teho"
         },
         en: {
             "title": "ECONET",
@@ -53,7 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
             "jate": "Exhaust air temperature (°C)",
             "submit": "Calculate Efficiency",
             "res1": "Supply air efficiency",
-            "res2": "Extract air efficiency"
+            "res2": "Extract air efficiency",
+            "opt4": "Opt.",
+            "opt5": "Optional",
+            "liquid_flow": "Liquid flow",
+            "eg_pct": "EG concentration",
+            "res_ilma_teho": "Air side power",
+            "res_neste_teho": "Liquid side power"
         },
         sv: {
             "title": "ECONET",
@@ -73,7 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
             "jate": "Avluftstemperatur (°C)",
             "submit": "Beräkna Verkningsgrad",
             "res1": "Tilluftens verkningsgrad",
-            "res2": "Frånluftens verkningsgrad"
+            "res2": "Frånluftens verkningsgrad",
+            "opt4": "Friv.",
+            "opt5": "Friv.",
+            "liquid_flow": "Vätskeflöde",
+            "eg_pct": "EG-koncentration",
+            "res_ilma_teho": "Luftsidans effekt",
+            "res_neste_teho": "Vätskesidans effekt"
         }
     };
 
@@ -105,6 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('t-submit').innerText = data.submit;
             document.getElementById('t-res1').innerText = data.res1;
             document.getElementById('t-res2').innerText = data.res2;
+            document.getElementById('t-opt4').innerText = data.opt4;
+            document.getElementById('t-opt5').innerText = data.opt5;
+            document.getElementById('t-liquid-flow').innerText = data.liquid_flow;
+            document.getElementById('t-eg-pct').innerText = data.eg_pct;
+            document.getElementById('t-res-ilma-teho').innerText = data.res_ilma_teho;
+            document.getElementById('t-res-neste-teho').innerText = data.res_neste_teho;
         });
     });
 
@@ -228,6 +252,33 @@ document.addEventListener('DOMContentLoaded', () => {
             poistoCard.classList.add('hidden');
             poistoResult.innerHTML = '0';
             poistoBar.style.width = '0%';
+        }
+
+        // Calculate Powers
+        const flowLiquid = parseNumber(document.getElementById('flow-liquid').value);
+        const egPctInput = document.getElementById('eg-pct').value;
+        const egPct = parseNumber(egPctInput) || 0;
+
+        const ilmaTehoCard = document.getElementById('ilma-teho-card');
+        if (!isNaN(flowTulo) && flowTulo > 0) {
+            const pIlma = flowTulo * 1.2 * (tulo - ulko);
+            document.getElementById('ilma-teho-result').innerText = Math.max(0, pIlma).toFixed(1);
+            ilmaTehoCard.classList.remove('hidden');
+        } else {
+            ilmaTehoCard.classList.add('hidden');
+        }
+
+        const nesteTehoCard = document.getElementById('neste-teho-card');
+        if (isLiquidActive && !isNaN(flowLiquid) && flowLiquid > 0 && !isNaN(gt40) && !isNaN(gt41)) {
+            const pitoisuus = Math.max(0, Math.min(100, egPct)) / 100.0;
+            const rho = 998 + (1113 - 998) * pitoisuus;
+            const c = 4190 + (2360 - 4190) * pitoisuus;
+            const deltaTg = Math.abs(gt41 - gt40);
+            const pNeste = (rho * c * flowLiquid * deltaTg) / 1000000.0;
+            document.getElementById('neste-teho-result').innerText = pNeste.toFixed(1);
+            nesteTehoCard.classList.remove('hidden');
+        } else {
+            nesteTehoCard.classList.add('hidden');
         }
     });
 

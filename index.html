@@ -137,10 +137,29 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="gt42" id="t-gt42">Nestelämpötila poistoilmapatteri paluu TE42 (°C)</label>
+                    <label for="gt42" id="t-gt42">Nestelämpötila poistoilmapatteri paluu GT42 (°C)</label>
                     <div class="input-wrapper">
                         <input type="number" step="0.1" id="gt42" placeholder="15.0">
                         <span class="unit">°C</span>
+                    </div>
+                </div>
+
+                <div class="flow-group">
+                    <div class="input-group half optional">
+                        <label for="flow-liquid"><span id="t-liquid-flow">Nestevirta</span> <span class="opt-tag"
+                                id="t-opt4">Valinn.</span></label>
+                        <div class="input-wrapper">
+                            <input type="number" step="0.01" id="flow-liquid" placeholder="esim. 0.5">
+                            <span class="unit">l/s</span>
+                        </div>
+                    </div>
+                    <div class="input-group half optional">
+                        <label for="eg-pct"><span id="t-eg-pct">EG pitoisuus</span> <span class="opt-tag"
+                                id="t-opt5">Valinn.</span></label>
+                        <div class="input-wrapper">
+                            <input type="number" step="1" id="eg-pct" placeholder="esim. 30">
+                            <span class="unit">%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -183,6 +202,20 @@
                 </div>
                 <div class="progress-bar">
                     <div id="poisto-bar" class="progress-fill"></div>
+                </div>
+            </div>
+
+            <div id="ilma-teho-card" class="result-card hidden">
+                <h3 id="t-res-ilma-teho">Ilmapuolen teho</h3>
+                <div class="value-wrapper">
+                    <span id="ilma-teho-result">0</span><span class="percent"> kW</span>
+                </div>
+            </div>
+
+            <div id="neste-teho-card" class="result-card hidden">
+                <h3 id="t-res-neste-teho">Nestepuolen teho</h3>
+                <div class="value-wrapper">
+                    <span id="neste-teho-result">0</span><span class="percent"> kW</span>
                 </div>
             </div>
         </div>

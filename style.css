@@ -172,6 +172,7 @@ header h1 {
     letter-spacing: -0.025em;
     margin-bottom: 4px;
     background: linear-gradient(to right, #fff, #cbd5e1);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -360,7 +361,9 @@ input::placeholder {
 }
 
 #tulo-result,
-#poisto-result {
+#poisto-result,
+#ilma-teho-result,
+#neste-teho-result {
     font-size: 2.5rem;
     font-weight: 700;
     line-height: 1;
