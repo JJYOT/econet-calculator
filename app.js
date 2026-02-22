@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
             "ulko": "Ulkoilman lämpötila (°C)",
             "tulo": "Tuloilman lämpötila LTO jälkeen (°C)",
             "poisto": "Poistoilman lämpötila (°C)",
-            "flowtulo": "Tuloilma",
-            "flowpoisto": "Poistoilma",
+            "flowtulo": "Tuloilmavirta",
+            "flowpoisto": "Poistoilmavirta",
             "opt1": "Valinn.",
             "opt2": "Valinn.",
             "opt3": "Valinnainen",
@@ -445,3 +445,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
