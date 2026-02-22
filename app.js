@@ -39,7 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
             "liquid_flow": "Nestevirta",
             "eg_pct": "EG pitoisuus",
             "res_ilma_teho": "Ilmapuolen teho",
-            "res_neste_teho": "Nestepuolen teho"
+            "res_neste_teho": "Nestepuolen teho",
+            "target_name": "Kohteen / Projektin nimi",
+            "history_title": "Tallennushistoria",
+            "btn_save": "Tallenna",
+            "btn_email": "Sähköposti",
+            "clear_history": "Tyhjennä historia",
+            "export_csv": "Lataa CSV",
+            "saved_alert": "Tallennettu historiaan!"
         },
         en: {
             "title": "ECONET",
@@ -65,7 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
             "liquid_flow": "Liquid flow",
             "eg_pct": "EG concentration",
             "res_ilma_teho": "Air side power",
-            "res_neste_teho": "Liquid side power"
+            "res_neste_teho": "Liquid side power",
+            "target_name": "Target / Project name",
+            "history_title": "Save History",
+            "btn_save": "Save",
+            "btn_email": "Email",
+            "clear_history": "Clear History",
+            "export_csv": "Download CSV",
+            "saved_alert": "Saved to history!"
         },
         sv: {
             "title": "ECONET",
@@ -91,7 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
             "liquid_flow": "Vätskeflöde",
             "eg_pct": "EG-koncentration",
             "res_ilma_teho": "Luftsidans effekt",
-            "res_neste_teho": "Vätskesidans effekt"
+            "res_neste_teho": "Vätskesidans effekt",
+            "target_name": "Objektets / Projektets namn",
+            "history_title": "Sparhistorik",
+            "btn_save": "Spara",
+            "btn_email": "E-post",
+            "clear_history": "Rensa historik",
+            "export_csv": "Ladda ner CSV",
+            "saved_alert": "Sparades i historiken!"
         }
     };
 
@@ -129,6 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('t-eg-pct').innerText = data.eg_pct;
             document.getElementById('t-res-ilma-teho').innerText = data.res_ilma_teho;
             document.getElementById('t-res-neste-teho').innerText = data.res_neste_teho;
+            document.getElementById('t-target-name').innerText = data.target_name;
+            document.getElementById('t-history-title').innerText = data.history_title;
+            document.getElementById('t-btn-save').innerText = data.btn_save;
+            document.getElementById('t-btn-email').innerText = data.btn_email;
+            document.getElementById('t-clear-history').innerText = data.clear_history;
+            document.getElementById('t-export-csv').innerText = data.export_csv;
         });
     });
 
@@ -168,6 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         window.requestAnimationFrame(step);
     };
+
+    let latestRecord = null;
+    let historyData = JSON.parse(localStorage.getItem('econet_history')) || [];
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -226,8 +256,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 50);
 
         // Calculate Poisto hyötysuhde if provided
+        let poistoHyoty = null;
         if (jateInput.trim() !== '' && !isNaN(jate)) {
-            let poistoHyoty = 0;
+            poistoHyoty = 0;
             if (poisto !== ulko) {
                 poistoHyoty = ((poisto - jate) / (poisto - ulko)) * 100;
 
@@ -280,6 +311,126 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             nesteTehoCard.classList.add('hidden');
         }
+
+        // Store latest record for saving/emailing
+        const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+        const t = translations[currentLang];
+
+        let reportText = `Date: ${new Date().toLocaleString()}\n`;
+        reportText += `Target: ${document.getElementById('target-name').value || '-'}\n`;
+        reportText += `------------------------------\n`;
+        reportText += `${t.ulko}: ${ulko} °C\n`;
+        reportText += `${t.tulo}: ${tulo} °C\n`;
+        reportText += `${t.poisto}: ${poisto} °C\n`;
+        if (flowTulo) reportText += `${t.flowtulo}: ${flowTulo} m³/s\n`;
+        if (flowPoisto) reportText += `${t.flowpoisto}: ${flowPoisto} m³/s\n`;
+        if (poistoHyoty !== null) reportText += `${t.jate}: ${jate} °C\n`;
+
+        if (isLiquidActive) {
+            reportText += `${t.gt40}: ${gt40} °C\n${t.gt41}: ${gt41} °C\n${t.gt42}: ${gt42} °C\n`;
+            if (flowLiquid) reportText += `${t.liquid_flow}: ${flowLiquid} l/s\n${t.eg_pct}: ${egPct} %\n`;
+        }
+        reportText += `------------------------------\n`;
+        reportText += `=== RESULTS ===\n`;
+        reportText += `${t.res1}: ${tuloHyoty.toFixed(1)} %\n`;
+        if (poistoHyoty !== null) reportText += `${t.res2}: ${poistoHyoty.toFixed(1)} %\n`;
+        if (flowTulo > 0) reportText += `${t.res_ilma_teho}: ${Math.max(0, flowTulo * 1.2 * (tulo - ulko)).toFixed(1)} kW\n`;
+        if (isLiquidActive && flowLiquid > 0) reportText += `${t.res_neste_teho}: ${document.getElementById('neste-teho-result').innerText} kW\n`;
+
+        latestRecord = {
+            date: new Date().toLocaleString(),
+            target: document.getElementById('target-name').value || '-',
+            raportti_teksti: reportText
+        };
+    });
+
+    // History and Action Buttons
+    document.getElementById('btn-save').addEventListener('click', (e) => {
+        if (!latestRecord) {
+            alert("Laske tulokset ensin! / Calculate results first! / Beräkna resultaten först!");
+            return;
+        }
+        historyData.push(latestRecord);
+        localStorage.setItem('econet_history', JSON.stringify(historyData));
+        const currentLang = document.querySelector('.lang-btn.active').getAttribute('data-lang');
+
+        const btn = e.currentTarget;
+        const originalHtml = btn.innerHTML;
+        const originalBg = btn.style.background;
+        const originalBorder = btn.style.borderColor;
+
+        btn.innerHTML = `<span style="color: white; font-weight: bold;">✓ ${translations[currentLang].saved_alert}</span>`;
+        btn.style.background = 'rgba(16, 185, 129, 0.4)';
+        btn.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.style.background = originalBg;
+            btn.style.borderColor = originalBorder;
+        }, 3000);
+    });
+
+    document.getElementById('btn-email').addEventListener('click', () => {
+        if (!latestRecord) return;
+        const subject = encodeURIComponent(`ECONET Tulokset - ${latestRecord.target}`);
+        const body = encodeURIComponent(latestRecord.raportti_teksti);
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    });
+
+    const historyModal = document.getElementById('history-modal');
+    const historyList = document.getElementById('history-list');
+
+    const renderHistory = () => {
+        historyList.innerHTML = '';
+        if (historyData.length === 0) {
+            historyList.innerHTML = '<p style="color:white;text-align:center;">Ei historiaa. / No history.</p>';
+            return;
+        }
+        historyData.slice().reverse().forEach(item => {
+            const div = document.createElement('div');
+            div.style.background = 'rgba(255,255,255,0.05)';
+            div.style.padding = '10px';
+            div.style.borderRadius = '8px';
+            div.style.border = '1px solid rgba(255,255,255,0.1)';
+            div.style.color = '#ddd';
+            div.innerHTML = `
+                <div style="font-weight:bold;margin-bottom:5px;color:white;">${item.target} <span style="font-size:0.8em;font-weight:normal;color:#aaa;float:right;">${item.date}</span></div>
+                <pre style="font-size:0.8em;white-space:pre-wrap;margin:0;font-family:inherit;">${item.raportti_teksti}</pre>
+            `;
+            historyList.appendChild(div);
+        });
+    };
+
+    document.getElementById('btn-history').addEventListener('click', () => {
+        renderHistory();
+        historyModal.style.opacity = '1';
+        historyModal.style.pointerEvents = 'all';
+    });
+
+    document.getElementById('btn-close-history').addEventListener('click', () => {
+        historyModal.style.opacity = '0';
+        historyModal.style.pointerEvents = 'none';
+    });
+
+    document.getElementById('btn-clear-history').addEventListener('click', () => {
+        if (confirm("Valinta poistaa koko historian pysyvästi. Jatketaanko? / This will clear all history. Continue?")) {
+            historyData = [];
+            localStorage.removeItem('econet_history');
+            renderHistory();
+        }
+    });
+
+    document.getElementById('btn-export-csv').addEventListener('click', () => {
+        if (historyData.length === 0) return;
+        let csv = "Date,Target,Raportti\n";
+        historyData.forEach(item => {
+            csv += `"${item.date}","${item.target}","${item.raportti_teksti.replace(/"/g, '""')}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "econet_historia.csv";
+        link.click();
     });
 
     // Add subtle animation on focus

@@ -18,38 +18,47 @@
     </div>
 
     <main class="glass-container">
-        <div class="language-selector">
-            <button class="lang-btn active" data-lang="fi" title="Suomi">
-                <svg viewBox="0 0 18 11" width="24" height="15">
-                    <rect width="18" height="11" fill="#fff" />
-                    <rect width="18" height="3" y="4" fill="#003580" />
-                    <rect width="3" height="11" x="5" fill="#003580" />
+        <div class="top-controls"
+            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <button id="btn-history" class="lang-btn" title="Historia / History" style="opacity: 1;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
             </button>
-            <button class="lang-btn" data-lang="sv" title="Svenska">
-                <svg viewBox="0 0 16 10" width="24" height="15">
-                    <rect width="16" height="10" fill="#006aa7" />
-                    <rect width="16" height="2" y="4" fill="#fecc00" />
-                    <rect width="2" height="10" x="5" fill="#fecc00" />
-                </svg>
-            </button>
-            <button class="lang-btn" data-lang="en" title="English">
-                <svg viewBox="0 0 60 30" width="24" height="12">
-                    <clipPath id="s">
-                        <path d="M0,0 v30 h60 v-30 z" />
-                    </clipPath>
-                    <clipPath id="t">
-                        <path d="M30,15 h30 v15 z v-15 h-30 z h-30 v-15 z v15 h30 z" />
-                    </clipPath>
-                    <g clip-path="url(#s)">
-                        <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
-                        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
-                        <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4" />
-                        <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
-                        <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
-                    </g>
-                </svg>
-            </button>
+            <div class="language-selector" style="margin-bottom: 0;">
+                <button class="lang-btn active" data-lang="fi" title="Suomi">
+                    <svg viewBox="0 0 18 11" width="24" height="15">
+                        <rect width="18" height="11" fill="#fff" />
+                        <rect width="18" height="3" y="4" fill="#003580" />
+                        <rect width="3" height="11" x="5" fill="#003580" />
+                    </svg>
+                </button>
+                <button class="lang-btn" data-lang="sv" title="Svenska">
+                    <svg viewBox="0 0 16 10" width="24" height="15">
+                        <rect width="16" height="10" fill="#006aa7" />
+                        <rect width="16" height="2" y="4" fill="#fecc00" />
+                        <rect width="2" height="10" x="5" fill="#fecc00" />
+                    </svg>
+                </button>
+                <button class="lang-btn" data-lang="en" title="English">
+                    <svg viewBox="0 0 60 30" width="24" height="12">
+                        <clipPath id="s">
+                            <path d="M0,0 v30 h60 v-30 z" />
+                        </clipPath>
+                        <clipPath id="t">
+                            <path d="M30,15 h30 v15 z v-15 h-30 z h-30 v-15 z v15 h30 z" />
+                        </clipPath>
+                        <g clip-path="url(#s)">
+                            <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+                            <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+                            <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4" />
+                            <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+                            <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
+                        </g>
+                    </svg>
+                </button>
+            </div>
         </div>
 
         <header>
@@ -68,6 +77,13 @@
         </header>
 
         <form id="calculator-form">
+            <div class="input-group">
+                <label for="target-name" id="t-target-name">Kohteen / Projektin nimi</label>
+                <div class="input-wrapper">
+                    <input type="text" id="target-name" placeholder="esim. As Oy Esimerkki">
+                </div>
+            </div>
+
             <div class="input-group">
                 <label for="ulko" id="t-ulko">Ulkoilman lämpötila (°C)</label>
                 <div class="input-wrapper">
@@ -218,8 +234,55 @@
                     <span id="neste-teho-result">0</span><span class="percent"> kW</span>
                 </div>
             </div>
+
+            <div id="action-buttons" class="action-buttons" style="display: flex; gap: 10px; margin-top: 10px;">
+                <button type="button" id="btn-save" class="btn-secondary"
+                    style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    <span id="t-btn-save">Tallenna</span>
+                </button>
+                <button type="button" id="btn-email" class="btn-secondary"
+                    style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.4); color: white; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span id="t-btn-email">Sähköposti</span>
+                </button>
+            </div>
         </div>
     </main>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal hidden"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+        <div class="modal-content glass-container"
+            style="max-height: 90vh; display: flex; flex-direction: column; opacity: 1; transform: translateY(0); margin: 20px;">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 id="t-history-title" style="margin: 0; font-size: 1.5rem;">Tallennushistoria</h2>
+                <button id="btn-close-history"
+                    style="background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div id="history-list" class="history-list"
+                style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+                <!-- History items will be injected here -->
+            </div>
+            <div class="modal-actions"
+                style="margin-top: 20px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <button id="btn-clear-history"
+                    style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: white; cursor: pointer; font-weight: 600;"><span
+                        id="t-clear-history">Tyhjennä historia</span></button>
+                <button id="btn-export-csv"
+                    style="flex: 1; padding: 12px; border-radius: 12px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: white; cursor: pointer; font-weight: 600;"><span
+                        id="t-export-csv">Lataa CSV</span></button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>
