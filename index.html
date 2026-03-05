@@ -20,7 +20,7 @@
     <main class="glass-container">
         <div class="top-controls"
             style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <button id="btn-history" class="lang-btn" title="Historia / History" style="opacity: 1;">
+            <button id="btn-history" class="icon-btn" title="Historia / History" style="opacity: 1;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
@@ -221,17 +221,67 @@
                 </div>
             </div>
 
-            <div id="ilma-teho-card" class="result-card hidden">
-                <h3 id="t-res-ilma-teho">Ilmapuolen teho</h3>
-                <div class="value-wrapper">
-                    <span id="ilma-teho-result">0</span><span class="percent"> kW</span>
+            <div id="tulo-teho-container" class="hidden" style="margin-bottom: 16px;">
+                <h3 id="t-tulo-patteri-otsikko"
+                    style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Tuloilmapatterin tehot</h3>
+                <div style="display: flex; gap: 16px;">
+                    <div id="tulo-ilma-teho-card" class="result-card" style="flex: 1; padding: 15px;">
+                        <h4 id="t-res-tulo-ilma-teho"
+                            style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                            Ilmapuoli</h4>
+                        <div class="value-wrapper" style="margin-bottom: 0;">
+                            <span id="tulo-ilma-teho-result" style="font-size: 1.8rem; font-weight: 700;">0</span><span
+                                class="percent"> kW</span>
+                        </div>
+                    </div>
+                    <div id="tulo-neste-teho-card" class="result-card" style="flex: 1; padding: 15px;">
+                        <h4 id="t-res-tulo-neste-teho"
+                            style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                            Nestepuoli</h4>
+                        <div class="value-wrapper" style="margin-bottom: 0;">
+                            <span id="tulo-neste-teho-result" style="font-size: 1.8rem; font-weight: 700;">0</span><span
+                                class="percent"> kW</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div id="neste-teho-card" class="result-card hidden">
-                <h3 id="t-res-neste-teho">Nestepuolen teho</h3>
-                <div class="value-wrapper">
-                    <span id="neste-teho-result">0</span><span class="percent"> kW</span>
+            <div id="poisto-teho-container" class="hidden" style="margin-bottom: 16px;">
+                <h3 id="t-poisto-patteri-otsikko"
+                    style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Poistoilmapatterin tehot</h3>
+                <div style="display: flex; gap: 16px;">
+                    <div id="poisto-ilma-teho-card" class="result-card" style="flex: 1; padding: 15px;">
+                        <h4 id="t-res-poisto-ilma-teho"
+                            style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                            Ilmapuoli</h4>
+                        <div class="value-wrapper" style="margin-bottom: 0;">
+                            <span id="poisto-ilma-teho-result"
+                                style="font-size: 1.8rem; font-weight: 700;">0</span><span class="percent"> kW</span>
+                        </div>
+                    </div>
+                    <div id="poisto-neste-teho-card" class="result-card" style="flex: 1; padding: 15px;">
+                        <h4 id="t-res-poisto-neste-teho"
+                            style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">
+                            Nestepuoli</h4>
+                        <div class="value-wrapper" style="margin-bottom: 0;">
+                            <span id="poisto-neste-teho-result"
+                                style="font-size: 1.8rem; font-weight: 700;">0</span><span class="percent"> kW</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ulkoinen-teho-container" class="hidden" style="margin-bottom: 16px;">
+                <h3 id="t-ulkoinen-teho-otsikko"
+                    style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Ulkoisen energian teho</h3>
+                <div class="result-card" style="padding: 15px;">
+                    <div class="value-wrapper" style="margin-bottom: 0;">
+                        <span id="ulkoinen-teho-result" style="font-size: 1.8rem; font-weight: 700;">0</span><span
+                            class="percent"> kW</span>
+                    </div>
                 </div>
             </div>
 

@@ -121,7 +121,8 @@ body {
     margin-bottom: 20px;
 }
 
-.lang-btn {
+.lang-btn,
+.icon-btn {
     background: rgba(15, 23, 42, 0.5);
     border: 1px solid var(--glass-border);
     border-radius: 8px;
@@ -134,12 +135,14 @@ body {
     opacity: 0.6;
 }
 
-.lang-btn:hover {
+.lang-btn:hover,
+.icon-btn:hover {
     background: rgba(15, 23, 42, 0.8);
     opacity: 0.9;
 }
 
-.lang-btn.active {
+.lang-btn.active,
+.icon-btn.active {
     opacity: 1;
     border-color: var(--primary);
     box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
@@ -233,6 +236,18 @@ input:focus {
 
 input::placeholder {
     color: #475569;
+}
+
+/* Hide number input arrows to prevent overlap with units */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 .unit {
