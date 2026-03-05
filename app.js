@@ -525,9 +525,23 @@ document.addEventListener('DOMContentLoaded', () => {
             div.style.border = '1px solid rgba(255,255,255,0.1)';
             div.style.color = '#ddd';
             div.innerHTML = `
-                <div style="font-weight:bold;margin-bottom:5px;color:white;">${item.target} <span style="font-size:0.8em;font-weight:normal;color:#aaa;float:right;">${item.date}</span></div>
-                <pre style="font-size:0.8em;white-space:pre-wrap;margin:0;font-family:inherit;">${item.raportti_teksti}</pre>
+                <div style="font-weight:bold;margin-bottom:8px;color:white;display:flex;justify-content:space-between;align-items:center;">
+                    <span>${item.target} <span style="font-size:0.8em;font-weight:normal;color:#aaa;margin-left:8px;">${item.date}</span></span>
+                    <button class="history-email-btn" style="background:rgba(59, 130, 246, 0.4);border:1px solid rgba(59, 130, 246, 0.6);border-radius:6px;padding:4px 10px;color:white;cursor:pointer;font-size:0.8em;display:flex;align-items:center;gap:4px;transition:background 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.6)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.4)'">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                        Email
+                    </button>
+                </div>
+                <pre style="font-size:0.8em;white-space:pre-wrap;margin:0;font-family:inherit;padding-left:4px;border-left:2px solid rgba(255,255,255,0.1);">${item.raportti_teksti}</pre>
             `;
+
+            const emailBtn = div.querySelector('.history-email-btn');
+            emailBtn.addEventListener('click', () => {
+                const subject = encodeURIComponent(`ECONET Tulokset - ${item.target}`);
+                const body = encodeURIComponent(item.raportti_teksti);
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
+
             historyList.appendChild(div);
         });
     };
