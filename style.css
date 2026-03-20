@@ -135,6 +135,19 @@ body {
     opacity: 0.6;
 }
 
+#btn-history {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #f59e0b;
+    color: #fff;
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+#btn-history:hover {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    transform: scale(1.05);
+}
+
 .lang-btn:hover,
 .icon-btn:hover {
     background: rgba(15, 23, 42, 0.8);
