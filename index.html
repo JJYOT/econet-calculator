@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 
@@ -338,6 +339,181 @@
             </div>
         </div>
     </div>
+
+    <!-- Visual Diagram Template -->
+    <template id="visual-diagram-template">
+        <div class="econet-diagram">
+            <div class="diagram-row exhaust" style="height: 100px; display: block; position: relative;">
+                <div class="pipe-horizontal" style="top: 50%;"></div>
+                <div class="flow-arrow-left" style="top: calc(50% - 4px);"></div>
+
+                <div class="diagram-fan" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="width: 100%; height: 100%;">
+                        <circle cx="12" cy="12" r="11"></circle>
+                        <path d="M 16 6 L 6 12 L 16 18 Z" />
+                    </svg>
+                    <span class="diagram-label flow-lbl val-flow-poisto"
+                        style="position: absolute; bottom: -24px; white-space: nowrap;">-</span>
+                </div>
+
+                <div class="diagram-block"
+                    style="position: absolute; left: 70px; top: 50%; transform: translateY(-50%);">
+                    <span class="diagram-label t-jate-lbl">Jäte (GT21)</span>
+                    <span class="diagram-badge val-jate">-</span>
+                </div>
+
+                <div
+                    style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
+                    <span class="diagram-badge val-poisto-p-ilma"
+                        style="background: rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 0.6); font-size: 0.65rem; min-width: 40px;"
+                        title="Ilmapuoli">-</span>
+                    <div class="diagram-coil"></div>
+                </div>
+
+                <div class="diagram-block"
+                    style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">
+                    <span class="diagram-label t-poisto-lbl">Poisto (GT20)</span>
+                    <span class="diagram-badge val-poisto">-</span>
+                </div>
+            </div>
+
+            <div class="diagram-middle" style="height: 260px;">
+                <div class="pipe-vertical pipe-left"></div>
+                <div class="pipe-vertical pipe-right"></div>
+
+                <!-- Hyötysuhteet -->
+                <div class="diagram-block"
+                    style="position: absolute; left: 5%; top: 50%; transform: translateY(-50%); align-items: flex-start; z-index: 4;">
+                    <span class="diagram-label t-diagram-res2" style="margin-bottom: 2px;">Poistoilman hyötysuhde</span>
+                    <span class="diagram-badge val-poisto-hyoty"
+                        style="background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); font-size: 0.85rem; min-width: 50px; color: #fca5a5; margin-bottom: 40px;">-</span>
+
+                    <span class="diagram-label t-diagram-res1" style="margin-bottom: 2px;">Tuloilman hyötysuhde</span>
+                    <span class="diagram-badge val-tulo-hyoty"
+                        style="background: rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); font-size: 0.85rem; min-width: 50px; color: #93c5fd;">-</span>
+                </div>
+
+                <!-- Bypass Line -->
+                <div class="pipe-bypass"
+                    style="position: absolute; top: 45px; height: 4px; background: rgba(255,255,255,0.15); left: calc(50% - 40px); right: calc(50% - 40px); z-index: 1;">
+                </div>
+
+                <!-- Nestepuolen teho (Poisto) putkien väliin ylös -->
+                <div style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 4;">
+                    <span class="diagram-badge val-poisto-p-neste"
+                        style="background: rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.6); font-size: 0.65rem; min-width: 40px;"
+                        title="Nestepuoli">-</span>
+                </div>
+
+                <!-- 3-Way Valve (SV40) -->
+                <div style="z-index: 4; position: absolute; right: calc(50% - 38px); top: 45px;">
+                    <div
+                        style="position: absolute; right: -16px; top: -16px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+                            style="width: 100%; height: 100%; fill: #0f172a; stroke: rgba(255,255,255,0.8); stroke-width: 2;">
+                            <path d="M 16 16 L 4 8 L 4 24 Z" />
+                            <path d="M 16 16 L 10 4 L 22 4 Z" />
+                            <path d="M 16 16 L 10 28 L 22 28 Z" />
+                        </svg>
+                    </div>
+                    <span class="diagram-label"
+                        style="font-size: 0.65rem; position: absolute; left: 20px; top: -6px; white-space: nowrap;">SV40</span>
+                </div>
+
+                <!-- GT42 Just below SV40 -->
+                <div class="diagram-block" style="position: absolute; right: 18%; top: 60px;">
+                    <span class="diagram-label t-gt42-lbl">GT42 (Paluu)</span>
+                    <span class="diagram-badge val-gt42">-</span>
+                </div>
+
+                <!-- Lisäenergia Pipes ja Lisäteho -->
+                <div class="lisateho-boundary" style="position: absolute; right: 22%; top: 90px; height: 60px; width: 1px; border-right: 1px dashed rgba(255,255,255,0.4); z-index: 1;"></div>
+                
+                <div class="pipe-lisateho" style="position: absolute; right: 22%; top: 105px; height: 4px; background: rgba(255,255,255,0.15); left: calc(50% + 40px); z-index: 1;">
+                   <div class="flow-arrow-right" style="position: absolute; top: 0; width: 100%;"></div>
+                </div>
+                
+                <div class="pipe-lisateho" style="position: absolute; right: 22%; top: 135px; height: 4px; background: rgba(255,255,255,0.15); left: calc(50% + 40px); z-index: 1;">
+                   <div class="flow-arrow-left" style="position: absolute; top: 0; width: 100%;"></div>
+                </div>
+
+                <div class="diagram-block" style="z-index: 4; position: absolute; right: 2%; top: 108px; align-items: flex-end;">
+                    <span class="diagram-label t-lisateho-lbl">Lisäteho</span>
+                    <span class="diagram-badge val-ulkoinen-teho" style="background: rgba(245, 158, 11, 0.4); color: #fff; padding: 2px 6px; font-size: 0.75rem; min-width: 50px; border-radius: 4px; border: 1px solid rgba(245, 158, 11, 0.6);">-</span>
+                </div>
+
+                <!-- Pump P40.1 -->
+                <div style="z-index: 4; position: absolute; right: calc(50% - 56px); top: 179px;">
+                    <div class="pump-icon-container" style="width: 32px; height: 32px; background: #0f172a; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px rgba(255,255,255,0.1);">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" style="width: 100%; height: 100%; fill: white; stroke: none;">
+                            <path d="M 6 9 L 26 9 L 16 27 Z" />
+                        </svg>
+                    </div>
+                    <div style="position: absolute; left: 40px; top: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <span class="diagram-label" style="font-size: 0.65rem; white-space: nowrap;">PUMPPU</span>
+                        <span class="diagram-badge val-neste-virta"
+                            style="background: rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.6); font-size: 0.65rem; min-width: 40px; text-align: center;"
+                            title="Nestevirta">-</span>
+                    </div>
+                </div>
+
+                <!-- GT40 Just below Pump -->
+                <div class="diagram-block" style="position: absolute; right: 18%; top: 220px;">
+                    <span class="diagram-label t-gt40-lbl">GT40 (Meno)</span>
+                    <span class="diagram-badge val-gt40">-</span>
+                </div>
+
+                <!-- GT41 on Left Pipe -->
+                <div class="diagram-block" style="position: absolute; left: 18%; top: 210px;">
+                    <span class="diagram-label t-gt41-lbl">GT41 (Paluu)</span>
+                    <span class="diagram-badge val-gt41">-</span>
+                </div>
+
+                <!-- Nestepuolen teho (Tulo) putkien väliin alas -->
+                <div style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 4;">
+                    <span class="diagram-badge val-tulo-p-neste"
+                        style="background: rgba(139, 92, 246, 0.4); border-color: rgba(139, 92, 246, 0.6); font-size: 0.65rem; min-width: 40px;"
+                        title="Nestepuoli">-</span>
+                </div>
+            </div>
+
+            <div class="diagram-row supply"
+                style="height: 100px; display: block; position: relative; margin-top: 10px;">
+                <div class="pipe-horizontal" style="top: 50%;"></div>
+                <div class="flow-arrow-right" style="top: calc(50% - 4px);"></div>
+
+                <div class="diagram-block"
+                    style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);">
+                    <span class="diagram-label t-ulko-lbl">Ulko (GT00)</span>
+                    <span class="diagram-badge val-ulko">-</span>
+                </div>
+
+                <div
+                    style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2;">
+                    <div class="diagram-coil"></div>
+                    <span class="diagram-badge val-tulo-p-ilma"
+                        style="background: rgba(59, 130, 246, 0.4); border-color: rgba(59, 130, 246, 0.6); font-size: 0.65rem; min-width: 40px;"
+                        title="Ilmapuoli">-</span>
+                </div>
+
+                <div class="diagram-block"
+                    style="position: absolute; right: 70px; top: 50%; transform: translateY(-50%);">
+                    <span class="diagram-label t-tulo-lbl">Tulo (GT10)</span>
+                    <span class="diagram-badge val-tulo">-</span>
+                </div>
+
+                <div class="diagram-fan"
+                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" style="width: 100%; height: 100%;">
+                        <circle cx="12" cy="12" r="11"></circle>
+                        <path d="M 8 6 L 18 12 L 8 18 Z" />
+                    </svg>
+                    <span class="diagram-label flow-lbl val-flow-tulo"
+                        style="position: absolute; bottom: -24px; white-space: nowrap;">-</span>
+                </div>
+            </div>
+        </div>
+    </template>
 
     <script src="app.js"></script>
 </body>
