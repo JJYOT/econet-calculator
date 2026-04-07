@@ -49,7 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "btn_email": "Sähköposti",
             "clear_history": "Tyhjennä historia",
             "export_csv": "Lataa CSV",
-            "saved_alert": "Tallennettu historiaan!"
+            "saved_alert": "Tallennettu historiaan!",
+            "btn_pdf": "Lataa PDF",
+            "target_prefix": "Kohde",
+            "calc_results": "Laskennan tulokset"
         },
         en: {
             "title": "ECONET",
@@ -85,7 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "btn_email": "Email",
             "clear_history": "Clear History",
             "export_csv": "Download CSV",
-            "saved_alert": "Saved to history!"
+            "saved_alert": "Saved to history!",
+            "btn_pdf": "Download PDF",
+            "target_prefix": "Target",
+            "calc_results": "Calculation results"
         },
         sv: {
             "title": "ECONET",
@@ -121,7 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
             "btn_email": "E-post",
             "clear_history": "Rensa historik",
             "export_csv": "Ladda ner CSV",
-            "saved_alert": "Sparades i historiken!"
+            "saved_alert": "Sparades i historiken!",
+            "btn_pdf": "Ladda ned PDF",
+            "target_prefix": "Objekt",
+            "calc_results": "Beräkningsresultat"
         }
     };
 
@@ -164,12 +173,34 @@ document.addEventListener('DOMContentLoaded', () => {
             if (document.getElementById('t-res-poisto-ilma-teho')) document.getElementById('t-res-poisto-ilma-teho').innerText = data.res_ilma;
             if (document.getElementById('t-res-poisto-neste-teho')) document.getElementById('t-res-poisto-neste-teho').innerText = data.res_neste;
             if (document.getElementById('t-ulkoinen-teho-otsikko')) document.getElementById('t-ulkoinen-teho-otsikko').innerText = data.ulkoinen_teho_otsikko;
-            document.getElementById('t-target-name').innerText = data.target_name;
+            if (document.getElementById('target-name')) document.getElementById('target-name').placeholder = data.target_name;
             document.getElementById('t-history-title').innerText = data.history_title;
             document.getElementById('t-btn-save').innerText = data.btn_save;
             document.getElementById('t-btn-email').innerText = data.btn_email;
+            if (document.getElementById('t-btn-pdf')) document.getElementById('t-btn-pdf').innerText = data.btn_pdf;
             document.getElementById('t-clear-history').innerText = data.clear_history;
             document.getElementById('t-export-csv').innerText = data.export_csv;
+
+            // Update rendered diagram labels if it exists
+            const renderedDiagram = document.getElementById('rendered-diagram');
+            if (renderedDiagram) {
+                const labels = {
+                    fi: { j: 'Jäte', p: 'Poisto', t: 'Tulo', u: 'Ulko', pump: 'Lisäteho', meno: 'Meno', paluu: 'Paluu' },
+                    en: { j: 'Exhaust', p: 'Extract', t: 'Supply', u: 'Outdoor', pump: 'Ext. Power', meno: 'Supply', paluu: 'Return' },
+                    sv: { j: 'Avluft', p: 'Frånluft', t: 'Tilluft', u: 'Uteluft', pump: 'Extern Effekt', meno: 'Fram', paluu: 'Retur' }
+                };
+                const lbls = labels[lang] || labels.fi;
+                if (renderedDiagram.querySelector('.t-jate-lbl')) renderedDiagram.querySelector('.t-jate-lbl').innerText = lbls.j + ' (GT21)';
+                if (renderedDiagram.querySelector('.t-poisto-lbl')) renderedDiagram.querySelector('.t-poisto-lbl').innerText = lbls.p + ' (GT20)';
+                if (renderedDiagram.querySelector('.t-tulo-lbl')) renderedDiagram.querySelector('.t-tulo-lbl').innerText = lbls.t + ' (GT10)';
+                if (renderedDiagram.querySelector('.t-ulko-lbl')) renderedDiagram.querySelector('.t-ulko-lbl').innerText = lbls.u + ' (GT00)';
+                if (renderedDiagram.querySelector('.t-lisateho-lbl')) renderedDiagram.querySelector('.t-lisateho-lbl').innerText = lbls.pump;
+                if (renderedDiagram.querySelector('.t-gt42-lbl')) renderedDiagram.querySelector('.t-gt42-lbl').innerText = 'GT42 (' + lbls.paluu + ')';
+                if (renderedDiagram.querySelector('.t-gt40-lbl')) renderedDiagram.querySelector('.t-gt40-lbl').innerText = 'GT40 (' + lbls.meno + ')';
+                if (renderedDiagram.querySelector('.t-gt41-lbl')) renderedDiagram.querySelector('.t-gt41-lbl').innerText = 'GT41 (' + lbls.paluu + ')';
+                if (renderedDiagram.querySelector('.t-diagram-res1')) renderedDiagram.querySelector('.t-diagram-res1').innerText = data.res1;
+                if (renderedDiagram.querySelector('.t-diagram-res2')) renderedDiagram.querySelector('.t-diagram-res2').innerText = data.res2;
+            }
         });
     });
 
@@ -461,10 +492,72 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pNestePoisto !== null && pNestePoisto > 0) reportText += `${t.poisto_patteri_otsikko} (${t.res_neste}): ${pNestePoisto.toFixed(1)} kW\n`;
         if (pNesteUlkoinen !== null && pNesteUlkoinen > 0) reportText += `${t.ulkoinen_teho_otsikko}: ${pNesteUlkoinen.toFixed(1)} kW\n`;
 
+        // BUILD VISUAL HTML DIAGRAM
+        const template = document.getElementById('visual-diagram-template');
+        const clone = template.content.cloneNode(true);
+        const setVal = (sel, val, unit = '') => {
+            const el = clone.querySelector(sel);
+            if (el) el.innerHTML = (val !== null && val !== '-' && !isNaN(val)) ? `${val} <span style="font-size:0.75em;color:var(--text-muted);font-weight:normal;">${unit}</span>` : '-';
+        };
+        
+        setVal('.val-jate', poistoHyoty !== null && !isNaN(jate) ? jate : '-', '°C');
+        setVal('.val-poisto', !isNaN(poisto) ? poisto : '-', '°C');
+        setVal('.val-tulo', !isNaN(tulo) ? tulo : '-', '°C');
+        setVal('.val-ulko', !isNaN(ulko) ? ulko : '-', '°C');
+        setVal('.val-gt42', isLiquidActive && !isNaN(gt42) ? gt42 : '-', '°C');
+        setVal('.val-gt41', isLiquidActive && !isNaN(gt41) ? gt41 : '-', '°C');
+        setVal('.val-gt41-bottom', isLiquidActive && !isNaN(gt41) ? gt41 : '-', '°C');
+        setVal('.val-gt40', isLiquidActive && !isNaN(gt40) ? gt40 : '-', '°C');
+
+        setVal('.val-poisto-p-ilma', pIlmaPoisto !== null && pIlmaPoisto > 0 ? Math.max(0, pIlmaPoisto).toFixed(1) : '-', 'kW');
+        setVal('.val-poisto-p-neste', pNestePoisto !== null && pNestePoisto > 0 ? Math.max(0, pNestePoisto).toFixed(1) : '-', 'kW');
+        setVal('.val-tulo-p-ilma', pIlmaTulo !== null && pIlmaTulo > 0 ? Math.max(0, pIlmaTulo).toFixed(1) : '-', 'kW');
+        setVal('.val-tulo-p-neste', pNesteTulo !== null && pNesteTulo > 0 ? Math.max(0, pNesteTulo).toFixed(1) : '-', 'kW');
+        setVal('.val-ulkoinen-teho', pNesteUlkoinen !== null && pNesteUlkoinen > 0 ? pNesteUlkoinen.toFixed(1) : '-', 'kW');
+        
+        setVal('.val-tulo-hyoty', tuloHyoty !== null ? tuloHyoty.toFixed(1) : '-', '%');
+        setVal('.val-poisto-hyoty', poistoHyoty !== null ? poistoHyoty.toFixed(1) : '-', '%');
+        setVal('.val-neste-virta', isLiquidActive && !isNaN(flowLiquid) && flowLiquid !== null ? flowLiquid : '-', 'l/s');
+        
+        if(!isNaN(flowPoisto) && flowPoisto !== null) clone.querySelector('.val-flow-poisto').innerText = flowPoisto + ' m³/s';
+        if(!isNaN(flowTulo) && flowTulo !== null) clone.querySelector('.val-flow-tulo').innerText = flowTulo + ' m³/s';
+
+        const labels = {
+            fi: { j: 'Jäte', p: 'Poisto', t: 'Tulo', u: 'Ulko', pump: 'Lisäteho', meno: 'Meno', paluu: 'Paluu' },
+            en: { j: 'Exhaust', p: 'Extract', t: 'Supply', u: 'Outdoor', pump: 'Ext. Power', meno: 'Supply', paluu: 'Return' },
+            sv: { j: 'Avluft', p: 'Frånluft', t: 'Tilluft', u: 'Uteluft', pump: 'Extern Effekt', meno: 'Fram', paluu: 'Retur' }
+        };
+        const lbls = labels[currentLang] || labels.fi;
+        clone.querySelector('.t-jate-lbl').innerText = lbls.j + ' (GT21)';
+        clone.querySelector('.t-poisto-lbl').innerText = lbls.p + ' (GT20)';
+        clone.querySelector('.t-tulo-lbl').innerText = lbls.t + ' (GT10)';
+        clone.querySelector('.t-ulko-lbl').innerText = lbls.u + ' (GT00)';
+        if (clone.querySelector('.t-lisateho-lbl')) clone.querySelector('.t-lisateho-lbl').innerText = lbls.pump;
+        if (clone.querySelector('.t-gt42-lbl')) clone.querySelector('.t-gt42-lbl').innerText = 'GT42 (' + lbls.paluu + ')';
+        if (clone.querySelector('.t-gt40-lbl')) clone.querySelector('.t-gt40-lbl').innerText = 'GT40 (' + lbls.meno + ')';
+        if (clone.querySelector('.t-gt41-lbl')) clone.querySelector('.t-gt41-lbl').innerText = 'GT41 (' + lbls.paluu + ')';
+        if (clone.querySelector('.t-diagram-res1')) clone.querySelector('.t-diagram-res1').innerText = t.res1;
+        if (clone.querySelector('.t-diagram-res2')) clone.querySelector('.t-diagram-res2').innerText = t.res2;
+
+        const tmpDiv = document.createElement('div');
+        tmpDiv.appendChild(clone);
+        const diagramHTML = tmpDiv.innerHTML;
+
+        let diagramContainer = document.getElementById('rendered-diagram');
+        if (!diagramContainer) {
+            diagramContainer = document.createElement('div');
+            diagramContainer.id = 'rendered-diagram';
+            diagramContainer.style.width = '100%';
+            diagramContainer.style.marginBottom = '20px';
+            document.getElementById('action-buttons').parentNode.insertBefore(diagramContainer, document.getElementById('action-buttons'));
+        }
+        diagramContainer.innerHTML = diagramHTML;
+
         latestRecord = {
             date: new Date().toLocaleString(),
             target: document.getElementById('target-name').value || '-',
             raportti_teksti: reportText,
+            diagram_html: diagramHTML,
             isSavedToHistory: false
         };
     });
@@ -501,12 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     });
 
-    document.getElementById('btn-email').addEventListener('click', () => {
-        if (!latestRecord) return;
-        const subject = encodeURIComponent(`ECONET Tulokset - ${latestRecord.target}`);
-        const body = encodeURIComponent(latestRecord.raportti_teksti);
-        window.location.href = `mailto:?subject=${subject}&body=${body}`;
-    });
+
 
     const historyModal = document.getElementById('history-modal');
     const historyList = document.getElementById('history-list');
@@ -527,12 +615,22 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <div style="font-weight:bold;margin-bottom:8px;color:white;display:flex;justify-content:space-between;align-items:center;">
                     <span>${item.target} <span style="font-size:0.8em;font-weight:normal;color:#aaa;margin-left:8px;">${item.date}</span></span>
-                    <button class="history-email-btn" style="background:rgba(59, 130, 246, 0.4);border:1px solid rgba(59, 130, 246, 0.6);border-radius:6px;padding:4px 10px;color:white;cursor:pointer;font-size:0.8em;display:flex;align-items:center;gap:4px;transition:background 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.6)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.4)'">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                        Email
-                    </button>
+                    <div style="display:flex; gap: 8px;">
+                        <button class="history-pdf-btn" style="background:rgba(234, 179, 8, 0.4);border:1px solid rgba(234, 179, 8, 0.6);border-radius:6px;padding:4px 10px;color:white;cursor:pointer;font-size:0.8em;display:flex;align-items:center;gap:4px;transition:background 0.2s;" onmouseover="this.style.background='rgba(234, 179, 8, 0.6)'" onmouseout="this.style.background='rgba(234, 179, 8, 0.4)'">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            PDF
+                        </button>
+                        <button class="history-email-btn" style="background:rgba(59, 130, 246, 0.4);border:1px solid rgba(59, 130, 246, 0.6);border-radius:6px;padding:4px 10px;color:white;cursor:pointer;font-size:0.8em;display:flex;align-items:center;gap:4px;transition:background 0.2s;" onmouseover="this.style.background='rgba(59, 130, 246, 0.6)'" onmouseout="this.style.background='rgba(59, 130, 246, 0.4)'">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            Email
+                        </button>
+                    </div>
                 </div>
-                <pre style="font-size:0.8em;white-space:pre-wrap;margin:0;font-family:inherit;padding-left:4px;border-left:2px solid rgba(255,255,255,0.1);">${item.raportti_teksti}</pre>
+                <!-- Wrap diagram and text in a printable container -->
+                <div class="history-print-container">
+                    ${item.diagram_html ? item.diagram_html : ''}
+                    <div style="font-size:0.9rem;white-space:pre-wrap;margin:15px 0 0 0;font-family:monospace;padding:10px;border-left:2px solid rgba(255,255,255,0.2);color:#f8fafc;line-height:1.4;">${item.raportti_teksti}</div>
+                </div>
             `;
 
             const emailBtn = div.querySelector('.history-email-btn');
@@ -540,6 +638,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 const subject = encodeURIComponent(`ECONET Tulokset - ${item.target}`);
                 const body = encodeURIComponent(item.raportti_teksti);
                 window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            });
+
+            const pdfBtn = div.querySelector('.history-pdf-btn');
+            pdfBtn.addEventListener('click', () => {
+                const currentLang = document.querySelector('.lang-btn.active[data-lang]') ? document.querySelector('.lang-btn.active[data-lang]').getAttribute('data-lang') : 'fi';
+                const t = translations[currentLang];
+
+                const printDiv = document.createElement('div');
+                printDiv.className = 'pdf-export-mode';
+                printDiv.style.padding = '20px';
+                
+                printDiv.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #000; padding-bottom: 20px;">
+                        <h1 style="font-size: 2.5rem; margin: 0; padding: 0; font-weight: bold; color: #000;">${document.getElementById('t-title').innerText}</h1>
+                        <h2 style="font-size: 1.5rem; margin: 10px 0 0 0; color: #333;">${document.getElementById('t-subtitle').innerText}</h2>
+                        <h3 style="font-size: 2rem; margin: 30px 0 10px 0; color: #000; font-weight: bold;">${t.target_prefix || 'Kohde'}: ${item.target}</h3>
+                        <p style="font-size: 1.1rem; color: #555; margin-top: 5px;">${item.date}</p>
+                    </div>
+                    <div style="margin: 20px 0 40px 0;">
+                        ${item.diagram_html}
+                    </div>
+                    <div class="html2pdf__page-break"></div>
+                    <div style="padding-top: 20px;">
+                        <h2 style="font-size: 1.8rem; margin-bottom: 20px; color: #000; border-bottom: 2px solid #000; padding-bottom: 10px;">${t.calc_results || 'Laskennan tulokset'}</h2>
+                        <pre style="font-family: monospace; font-size: 1.1rem; white-space: pre-wrap; color: #000; line-height: 1.6;">${item.raportti_teksti}</pre>
+                    </div>
+                `;
+
+                // Update diagram labels in print wrapper to reflect currently selected language
+                const labels = {
+                    fi: { j: 'Jäte', p: 'Poisto', t: 'Tulo', u: 'Ulko', pump: 'Lisäteho', meno: 'Meno', paluu: 'Paluu' },
+                    en: { j: 'Exhaust', p: 'Extract', t: 'Supply', u: 'Outdoor', pump: 'Ext. Power', meno: 'Supply', paluu: 'Return' },
+                    sv: { j: 'Avluft', p: 'Frånluft', t: 'Tilluft', u: 'Uteluft', pump: 'Extern Effekt', meno: 'Fram', paluu: 'Retur' }
+                };
+                const lbls = labels[currentLang] || labels.fi;
+                if (printDiv.querySelector('.t-jate-lbl')) printDiv.querySelector('.t-jate-lbl').innerText = lbls.j + ' (GT21)';
+                if (printDiv.querySelector('.t-poisto-lbl')) printDiv.querySelector('.t-poisto-lbl').innerText = lbls.p + ' (GT20)';
+                if (printDiv.querySelector('.t-tulo-lbl')) printDiv.querySelector('.t-tulo-lbl').innerText = lbls.t + ' (GT10)';
+                if (printDiv.querySelector('.t-ulko-lbl')) printDiv.querySelector('.t-ulko-lbl').innerText = lbls.u + ' (GT00)';
+                if (printDiv.querySelector('.t-lisateho-lbl')) printDiv.querySelector('.t-lisateho-lbl').innerText = lbls.pump;
+                if (printDiv.querySelector('.t-gt42-lbl')) printDiv.querySelector('.t-gt42-lbl').innerText = 'GT42 (' + lbls.paluu + ')';
+                if (printDiv.querySelector('.t-gt40-lbl')) printDiv.querySelector('.t-gt40-lbl').innerText = 'GT40 (' + lbls.meno + ')';
+                if (printDiv.querySelector('.t-gt41-lbl')) printDiv.querySelector('.t-gt41-lbl').innerText = 'GT41 (' + lbls.paluu + ')';
+                if (printDiv.querySelector('.t-diagram-res1')) printDiv.querySelector('.t-diagram-res1').innerText = t.res1;
+                if (printDiv.querySelector('.t-diagram-res2')) printDiv.querySelector('.t-diagram-res2').innerText = t.res2;
+
+                // Add temporarily to dom for layout rendering
+                document.body.appendChild(printDiv);
+                
+                const opt = {
+                    margin:       15,
+                    filename:     `ECONET_Historia_${item.target.replace(/ /g, '_')}_${item.date.replace(/ /g, '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(printDiv).save().then(() => {
+                    document.body.removeChild(printDiv);
+                });
             });
 
             historyList.appendChild(div);
