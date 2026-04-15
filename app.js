@@ -543,15 +543,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tmpDiv.appendChild(clone);
         const diagramHTML = tmpDiv.innerHTML;
 
-        let diagramContainer = document.getElementById('rendered-diagram');
-        if (!diagramContainer) {
-            diagramContainer = document.createElement('div');
-            diagramContainer.id = 'rendered-diagram';
-            diagramContainer.style.width = '100%';
-            diagramContainer.style.marginBottom = '20px';
-            document.getElementById('action-buttons').parentNode.insertBefore(diagramContainer, document.getElementById('action-buttons'));
-        }
-        diagramContainer.innerHTML = diagramHTML;
+        // Kaaviota ei enää näytetä päänäkymässä, vaan ainoastaan PDF-tulosteessa
+
 
         latestRecord = {
             date: new Date().toLocaleString(),
@@ -626,9 +619,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                     </div>
                 </div>
-                <!-- Wrap diagram and text in a printable container -->
+                <!-- Wrap text in a printable container -->
                 <div class="history-print-container">
-                    ${item.diagram_html ? item.diagram_html : ''}
                     <div style="font-size:0.9rem;white-space:pre-wrap;margin:15px 0 0 0;font-family:monospace;padding:10px;border-left:2px solid rgba(255,255,255,0.2);color:#f8fafc;line-height:1.4;">${item.raportti_teksti}</div>
                 </div>
             `;
